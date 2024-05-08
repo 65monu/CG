@@ -1,260 +1,109 @@
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <cstdlib>
+#include <iostream.h>
 #include <graphics.h>
-#include <iostream>
-#define COORD_SHIFT 100
-using namespace std;
-void clrscr()
+#include <math.h>
+#include <conio.h>
+int main()
 {
-#ifdef _WIN32
- system("cls");
-#elif __unix__
- system("clear");
-#endif
+    int gd = DETECT, gm, s;
+    initgraph(&gd, &gm, "C://TURBOC3//BGI");
+    cout << "1.Translation\n2.Rotation\n3.Scaling\n4.Reflectio
+            n\n5.Shearing "<<endl;
+    cout<< "Selection:";
+    cin >> s;
+    switch (s)
+    {
+    case 1:
+    {
+        cleardevice();
+        int x1 = 200, y1 = 150, x2 = 300, y2 = 250;
+        int tx = 50, ty = 50;
+        cout << "Rectangle before translation" << endl;
+        setcolor(3);
+        rectangle(x1, y1, x2, y2);
+        setcolor(4);
+        cout << "Rectangle after translation" << endl;
+        rectangle(x1 + tx, y1 + ty, x2 + tx, y2 + ty);
+        getch();
+        break;
+    }
+    case 2:
+    {
+        cleardevice();
+        long x1 = 200, y1 = 200, x2 = 300, y2 = 300;
+        double a;
+        cout << "Rectangle with rotation" << endl;
+        setcolor(3);
+        rectangle(x1, y1, x2, y2);
+        cout << "Angle of rotation:";
+        cin >> a;
+        a = (a * 3.14) / 180;
+        long xr = x1 + ((x2 - x1) * cos(a) - (y2 - y1) * sin(a));
+        long yr = y1 + ((x2 - x1) * sin(a) + (y2 - y1) * cos(a));
+        setcolor(2);
+        rectangle(x1, y1, xr, yr);
+        getch();
+        break;
+    }
+    case 3:
+    {
+        cleardevice();
+        int x1 = 30, y1 = 30, x2 = 70, y2 = 70, y = 2, x = 2;
+        cout << "Before scaling" << endl;
+        setcolor(3);
+        rectangle(x1, y1, x2, y2);
+        cout << "After scaling" << endl;
+        setcolor(10);
+        rectangle(x1 * x, y1 * y, x2 * x, y2 * y);
+        getch();
+        break;
+    }
+    case 4:
+    {
+        cleardevice();
+        int x1 = 200, y1 = 300, x2 = 500, y2 = 300, x3 = 350, y3 = 400;
+        cout << "triangle before reflection" << endl;
+        setcolor(3);
+        line(x1, y1, x2, y2);
+        line(x1, y1, x3, y3);
+        line(x2, y2, x3, y3);
+        cout << "triangle after reflection" << endl;
+        setcolor(5);
+        line(x1, -y1 + 500, x2, -y2 + 500);
+        line(x1, -y1 + 500, x3, -y3 + 500);
+        line(x2, -y2 + 500, x3, -y3 + 500);
+        getch();
+        break;
+    }
+    case 5:
+    {
+        cleardevice();
+        int
+            x1 = 400,
+            y1 = 100, x2 = 600, y2 = 100, x3 = 400, y3 = 200, x4 = 600, y4 = 200, shx = 2;
+        cout << "Before shearing of rectangle" << endl;
+        setcolor(3);
+        line(x1, y1, x2, y2);
+        line(x1, y1, x3, y3);
+        line(x3, y3, x4, y4);
+        line(x2, y2, x4, y4);
+        cout << "After shearing of rectangle" << endl;
+        x1 = x1 + shx * y1;
+        x2 = x2 + shx * y2;
+        x3 = x3 + shx * y3;
+        x4 = x4 + shx * y4;
+        setcolor(13);
+        line(x1, y1, x2, y2);
+        line(x1, y1, x3, y3);
+        line(x3, y3, x4, y4);
+        line(x2, y2, x4, y4);
+        getch();
+    }
+    default:
+    {
+        cout << "Invalid Selection" << endl;
+        break;
+    }
+    }
+    closegraph();
+    return 0;
 }
-double **inputFigure(int n)
-{
- cout << "Enter the matrix for the 2-D shape (homogeneous):\n";
- double **figure = NULL;
- figure = new double *[n];
- for (int i = 0; i < n; i++)
- {
- figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- cin >> figure[i][j];
- }
- }
- return figure;
-}
-void drawFigure(double **points, int n)
-{
- setcolor(WHITE);
- for (int i = 0; i < n; i++)
- {
- line(COORD_SHIFT + points[i][0],
- COORD_SHIFT + points[i][1],
- COORD_SHIFT + points[(i + 1) % n][0],
- COORD_SHIFT + points[(i + 1) % n][1]);
- }
- delay(5e3);
- cleardevice();
-}
-double **translate(double **figure, int dim, int m, int n)
-{
- double **_figure = NULL;
- int T[dim][3] = {{1, 0, 0}, {0, 1, 0}, {m, n, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
-}
-double **rotate(double **figure, int dim, double theta)
-{
- double **_figure = NULL;
- double T[dim][3] = {{cos(theta * M_PI / 180.0), sin(theta * M_PI / 180.0), 0},
- {-sin(theta * M_PI / 180.0), cos(theta * M_PI / 180.0), 0},
- {0, 0, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 2; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
-}
-double **scale(double **figure, int dim, int m, int n)
-{
- double **_figure = NULL;
- int T[dim][3] = {{m, 0, 0}, {0, n, 0}, {0, 0, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
-}
-double **reflect(double **figure, int dim, int c)
-{
- double **_figure = NULL;
- int T[dim][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
- switch (c)
- {
- case 1:
- T[1][1] = -1;
- break;
- case 2:
- T[0][0] = -1;
- break;
- case 3:
- T[0][0] = 0;
- T[0][1] = 1;
- T[1][0] = 1;
- T[1][1] = 0;
- break;
- case 4:
- T[0][0] = -1;
- T[1][1] = -1;
- break;
- default:
- return NULL;
- break;
- }
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
-}
-double **shear(double **figure, int dim, int m, int n)
-{
- double **_figure = NULL;
- int T[dim][3] = {{1, n, 0}, {m, 1, 0}, {0, 0, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
-}
-void menu(double **figure, int dim)
-{
- int ch = 0;
- double **_figure;
- do
- {
- clrscr();
- cout << "\nMenu\n-------\n(1) Translation\n(2) Rotation";
- cout << "\n(3) Scaling\n(4) Reflection\n(5) Shearing";
- cout << "\n(6) View Figure\n(7) Exit\n\nEnter Choice: ";
- cin >> ch;
- cout << endl;
- switch (ch)
- {
- case 1:
- int m, n;
- cout << "Enter translation in x-axis: ";
- cin >> m;
- cout << "Enter translation in y-axis: ";
- cin >> n;
- _figure = translate(figure, dim, m, n);
- cout << "Drawing Original Figure...\n";
- drawFigure(figure, dim);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(_figure, dim);
- break;
- case 2:
- double theta;
- cout << "Enter rotation angle (degrees): ";
- cin >> theta;
- _figure = rotate(figure, dim, theta);
- cout << "Drawing Original Figure...\n";
- drawFigure(figure, dim);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(_figure, dim);
- break;
- case 3:
- cout << "Enter scaling in x-axis: ";
- cin >> m;
- cout << "Enter scaling in y-axis: ";
- cin >> n;
- _figure = scale(figure, dim, m, n);
- cout << "Drawing Original Figure...\n";
- drawFigure(figure, dim);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(_figure, dim);
- break;
- case 4:
- cout << "Reflect along\n(1) x-axis\n(2) y-axis\n(3) y = x\n(4) y = -x\n"
- << "\nEnter Choice: ";
- cin >> m;
- _figure = reflect(figure, dim, m);
- cout << "Drawing Original Figure...\n";
- drawFigure(figure, dim);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(_figure, dim);
- break;
- case 5:
- cout << "Enter shearing in x-axis: ";
- cin >> m;
- cout << "Enter shearing in y-axis: ";
- cin >> n;
- _figure = shear(figure, dim, m, n);
- cout << "Drawing Original Figure...\n";
- drawFigure(figure, dim);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(_figure, dim);
- break;
- case 6:
- cout << "Drawing Original Figure...\n";
- drawFigure(figure, dim);
- break;
- case 7:
- default:
- break;
- }
- delete _figure;
- cout << endl
- << "Finished..."
- << endl;
- if (ch != 7)
- {
- cout << "\nPress Enter to continue ...\n";
- cin.ignore();
- cin.get();
- }
- } while (ch != 7);
-};
-int main(void)
-{
- int n;
- double **fig;
- int gd = DETECT, gm;
- initgraph(&gd, &gm, NULL);
- cout << "Enter number of points in the figure: ";
- cin >> n;
- fig = inputFigure(n);
- menu(fig, n);
- delete fig;
- closegraph();
- return 0;
-}
-
