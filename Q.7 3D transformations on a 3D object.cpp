@@ -1,372 +1,219 @@
-#define _USE_MATH_DEFINES
+#include <iostream>
+#include <dos.h>
+#include <stdio.h>
+#include <math.h>
 #include <conio.h>
 #include <graphics.h>
-#include <iostream.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#define COORD_SHIFT 100
-double **inputFigure(int n)
+#include <process.h>
+double x1, x2, y1, y2;
+void draw_cube(double edge[20][3])
 {
- cout << "Enter the matrix for the 3-D shape (homogeneous):\n";
- double **figure = NULL;
- figure = new double *[n];
- for (int i = 0; i < n; i++)
- {
- figure[i] = new double[4];
- for (int j = 0; j < 4; j++)
- {
- cin >> figure[i][j];
- }
- }
- return figure;
+int i;
+cleardevice();
+for (i = 0; i < 19; i++)
+{
+x1 = edge[i][0] + edge[i][2] * (cos(2.3562));
+y1 = edge[i][1] - edge[i][2] * (sin(2.3562));
+x2 = edge[i + 1][0] + edge[i + 1][2] * (cos(2.3562));
+y2 = edge[i + 1][1] - edge[i + 1][2] * (sin(2.3562));
+line(x1 + 320, 240 - y1, x2 + 320, 240 - y2);
 }
-void drawFigure(double **points, int n, int p)
-{
- int a, b;
- switch (p)
- {
- case 1:
- a = 0;
- b = 1;
- break;
- case 2:
- a = 0;
- b = 2;
- break;
- case 3:
- a = 1;
- b = 2;
- break;
- }
- setcolor(WHITE);
- for (int i = 0; i < n; i++)
- {
- line(COORD_SHIFT + points[i][a],
- COORD_SHIFT + points[i][b],
- COORD_SHIFT + points[(i + 1) % n][a],
- COORD_SHIFT + points[(i + 1) % n][b]);
- cout << points[i][0] << "\t"
- << points[i][1] << "\t"
- << points[i][2] << "\t"
- << points[i][3] << " "
- << ":: (" << points[i][a] << ", " << points[i][b] << ") "
- << "-> (" << points[(i + 1) % n][a] << ", " << points[(i + 1) % n][b] << ")"
- << endl;
- }
- delay(5e3);
- cleardevice();
+line(320, 240, 320, 25);
+line(320, 240, 550, 240);
+line(320, 240, 150, 410);
 }
-double **translate(double **figure, int dim, int l, int m, int n)
+void translate(double edge[20][3])
 {
- double **_figure = NULL;
- int T[dim][4] = {{1, 0, 0, 0},
- {0, 1, 0, 0},
- {0, 0, 1, 0},
- {l, m, n, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[4];
- for (int j = 0; j < 4; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
+int a, b, c;
+int i;
+cout << "Enter the Translation Factors : ";
+cin >> a >> b >> c;
+cleardevice();
+for (i = 0; i < 20; i++)
+{
+edge[i][0] += a;
+edge[i][0] += b;
+edge[i][0] += c;
 }
-double **rotate(double **figure, int dim, double theta)
-{
- double **_figure = NULL;
- double T[dim][3] = {{cos(theta * M_PI / 180.0), sin(theta * M_PI / 180.0), 0},
- {-sin(theta * M_PI / 180.0), cos(theta * M_PI / 180.0), 0},
- {0, 0, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 2; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
+draw_cube(edge);
 }
-double **scale(double **figure, int dim, double l, double m, double n)
+void rotate(double edge[20][3])
 {
- double **_figure = NULL;
- double T[dim][4] = {{l, 0, 0, 0},
- {0, m, 0, 0},
- {0, 0, n, 0},
- {0, 0, 0, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[4];
- for (int j = 0; j < 4; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
+int n;
+int i;
+double temp, theta, temp1;
+cleardevice();
+cout << " 1.X-Axis \n 2.Y-Axis \n 3.Z-Axis \n";
+cout << "Enter your choice : ";
+cin >> n;
+switch (n)
+{
+case 1:
+cout << " Enter The Angle ";
+cin >> theta;
+theta = (theta * 3.14) / 180;
+for (i = 0; i < 20; i++)
+{
+edge[i][0] = edge[i][0];
+temp = edge[i][1];
+temp1 = edge[i][2];
+edge[i][1] = temp * cos(theta) - temp1 * sin(theta);
+edge[i][2] = temp * sin(theta) + temp1 * cos(theta);
 }
-double **scale(double **figure, int dim, double s)
+draw_cube(edge);
+break;
+case 2:
+cout << " Enter The Angle ";
+cin >> theta;
+theta = (theta * 3.14) / 180;
+for (i = 0; i < 20; i++)
 {
- double **_figure = NULL;
- double T[dim][4] = {{1, 0, 0, 0},
- {0, 1, 0, 0},
- {0, 0, 1, 0},
- {0, 0, 0, s}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[4];
- for (int j = 0; j < 4; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
+edge[i][1] = edge[i][1];
+temp = edge[i][0];
+temp1 = edge[i][2];
+edge[i][0] = temp * cos(theta) + temp1 * sin(theta);
+edge[i][2] = -temp * sin(theta) + temp1 * cos(theta);
 }
-double **reflect(double **figure, int dim, int c)
+draw_cube(edge);
+break;
+case 3:
+cout << " Enter The Angle ";
+cin >> theta;
+theta = (theta * 3.14) / 180;
+for (i = 0; i < 20; i++)
 {
- double **_figure = NULL;
- int T[dim][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
- switch (c)
- {
- case 1:
- T[1][1] = -1;
- break;
- case 2:
- T[0][0] = -1;
- break;
- case 3:
- T[0][0] = 0;
- T[0][1] = 1;
- T[1][0] = 1;
- T[1][1] = 0;
- break;
- case 4:
- T[0][0] = -1;
- T[1][1] = -1;
- break;
- default:
- return NULL;
- break;
- }
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
+edge[i][2] = edge[i][2];
+temp = edge[i][0];
+temp1 = edge[i][1];
+edge[i][0] = temp * cos(theta) - temp1 * sin(theta);
+edge[i][1] = temp * sin(theta) + temp1 * cos(theta);
 }
-double **shear(double **figure, int dim, int m, int n)
-{
- double **_figure = NULL;
- int T[dim][3] = {{1, n, 0}, {m, 1, 0}, {0, 0, 1}};
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[3];
- for (int j = 0; j < 3; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * T[k][j];
- }
- }
- }
- return _figure;
+draw_cube(edge);
+break;
 }
-double **project(double **figure, int dim, int p)
-{
- double **_figure = NULL;
- int P[dim][4] = {{1, 0, 0, 0},
- {0, 1, 0, 0},
- {0, 0, 1, 0},
- {0, 0, 0, 1}};
- switch (p)
- {
- case 1:
- P[2][2] = 0;
- break;
- case 2:
- P[1][1] = 0;
- break;
- case 3:
- P[0][0] = 0;
- break;
- }
- _figure = new double *[dim];
- for (int i = 0; i < dim; i++)
- {
- _figure[i] = new double[4];
- for (int j = 0; j < 4; j++)
- {
- for (int k = 0; k < dim; k++)
- {
- _figure[i][j] += figure[i][k] * P[k][j];
- }
- }
- }
- return _figure;
 }
-void menu(double **figure, int dim)
+void reflect(double edge[20][3])
 {
- int ch = 0;
- double l, m, n, p;
- double **_figure, **_projected;
- do
- {
- clrscr();
- cout << "\nMenu\n-------\n(1) Translation\n(2) Rotation";
- cout << "\n(3) Scaling\n(4) Reflection\n(5) Shearing";
- cout << "\n(6) View Figure\n(7) Exit\n\nEnter Choice: ";
- cin >> ch;
- cout << endl;
- switch (ch)
- {
- case 1:
- cout << "Enter translation in x-axis: ";
- cin >> l;
- cout << "Enter translation in y-axis: ";
- cin >> m;
- cout << "Enter translation in z-axis: ";
- cin >> n;
- _figure = translate(figure, dim, l, m, n);
- cout << "\nChoose Projection:\n(1) xy-plane\n(2) xz-plane\n(3) yz-plane\n"
- << "\nEnter Choice: ";
- cin >> p;
- if (p > 3 || p < 1)
- {
- cout << "\nInvalid Projection!";
- cin.ignore();
- cin.get();
- continue;
- }
- cout << "Drawing Original Figure...\n";
- drawFigure(project(figure, dim, p), dim, p);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(project(_figure, dim, p), dim, p);
- break;
- // case 2:
- // double theta;
- // cout << "Enter rotation angle (degrees): ";
- // cin >> theta;
- // _figure = rotate(figure, dim, theta);
- // cout << "Drawing Original Figure...\n";
- // drawFigure(figure, dim);
- // cout << "Drawing Transformed Figure...\n";
- // drawFigure(_figure, dim);
- // break;
- case 3:
- int scalingCh;
- cout << "Scaling:\n(1) Overall Scaling\n(2) Local Scaling\n\nEnter Choice: ";
- cin >> scalingCh;
- switch (scalingCh)
- {
- case 1:
- cout << "Enter scaling factor: ";
- cin >> l;
- _figure = scale(figure, dim, l);
- break;
- case 2:
- cout << "Enter scaling in x-axis: ";
- cin >> l;
- cout << "Enter scaling in y-axis: ";
- cin >> m;
- cout << "Enter scaling in z-axis: ";
- cin >> n;
- _figure = scale(figure, dim, l, m, n);
- break;
- }
- cout << "Drawing Original Figure...\n";
- drawFigure(project(figure, dim, p), dim, p);
- cout << "Drawing Transformed Figure...\n";
- drawFigure(project(_figure, dim, p), dim, p);
- break;
- // case 4:
- // cout << "Reflect along\n(1) x-axis\n(2) y-axis\n(3) y = x\n(4) y = -x\n"
- // << "\nEnter Choice: ";
- // cin >> m;
- // _figure = reflect(figure, dim, m);
- // cout << "Drawing Original Figure...\n";
- // drawFigure(figure, dim);
- // cout << "Drawing Transformed Figure...\n";
- // drawFigure(_figure, dim);
- // break;
- // case 5:
- // cout << "Enter shearing in x-axis: ";
- // cin >> m;
- // cout << "Enter shearing in y-axis: ";
- // cin >> n;
- // _figure = shear(figure, dim, m, n);
- // cout << "Drawing Original Figure...\n";
- // drawFigure(figure, dim);
- // cout << "Drawing Transformed Figure...\n";
- // drawFigure(_figure, dim);
- // break;
- case 6:
- cout << "\nChoose Projection:\n(1) xy-plane\n(2) xz-plane\n(3) yz-plane\n"
- << "\nEnter Choice: ";
- cin >> p;
- if (p > 3 || p < 1)
- {
- cout << "\nInvalid Projection!";
- cin.ignore();
- cin.get();
- continue;
- }
- cout << "Drawing Original Figure...\n";
- drawFigure(project(figure, dim, p), dim, p);
- case 7:
- default:
- break;
- }
- if (ch != 6)
- delete _figure;
- cout << endl
- << "Finished..."
- << endl;
- if (ch != 7)
- {
- cout << "\nPress Enter to continue ...\n";
- cin.ignore();
- cin.get();
- }
- } while (ch != 7);
-};
-int main(void)
+int n;
+int i;
+cleardevice();
+cout << " 1.X-Axis \n 2.Y-Axis \n 3.Z-Axis \n";
+cout << " Enter Your Choice : ";
+cin >> n;
+switch (n)
 {
- int n;
- double **fig;
- int gd = DETECT, gm;
- initgraph(&gd, &gm, NULL);
- cout << "Enter number of points in the figure: ";
- cin >> n;
- fig = inputFigure(n);
- menu(fig, n);
- delete fig;
- closegraph();
- return 0;
+case 1:
+for (i = 0; i < 20; i++)
+{
+edge[i][0] = edge[i][0];
+edge[i][1] = -edge[i][1];
+edge[i][2] = -edge[i][2];
+}
+draw_cube(edge);
+break;
+case 2:
+for (i = 0; i < 20; i++)
+{
+edge[i][1] = edge[i][1];
+edge[i][0] = -edge[i][0];
+edge[i][2] = -edge[i][2];
+}
+draw_cube(edge);
+break;
+case 3:
+for (i = 0; i < 20; i++)
+{
+edge[i][2] = edge[i][2];
+edge[i][0] = -edge[i][0];
+edge[i][1] = -edge[i][1];
+}
+draw_cube(edge);
+break;
+}
+}
+void perspect(double edge[20][3])
+{
+int n;
+int i;
+double p, q, r;
+cleardevice();
+cout << " 1.X-Axis \n 2.Y-Axis \n 3.Z-Axis\n";
+cout << " Enter Your Choice : ";
+cin >> n;
+switch (n)
+{
+case 1:
+cout << " Enter P : ";
+cin >> p;
+for (i = 0; i < 20; i++)
+{
+edge[i][0] = edge[i][0] / (p * edge[i][0] + 1);
+edge[i][1] = edge[i][1] / (p * edge[i][0] + 1);
+edge[i][2] = edge[i][2] / (p * edge[i][0] + 1);
+}
+draw_cube(edge);
+break;
+case 2:
+cout << " Enter Q : ";
+cin >> q;
+for (i = 0; i < 20; i++)
+{
+edge[i][1] = edge[i][1] / (edge[i][1] * q + 1);
+edge[i][0] = edge[i][0] / (edge[i][1] * q + 1);
+edge[i][2] = edge[i][2] / (edge[i][1] * q + 1);
+}
+draw_cube(edge);
+break;
+case 3:
+cout << " Enter R : ";
+cin >> r;
+for (i = 0; i < 20; i++)
+{
+edge[i][2] = edge[i][2] / (edge[i][2] * r + 1);
+edge[i][0] = edge[i][0] / (edge[i][2] * r + 1);
+edge[i][1] = edge[i][1] / (edge[i][2] * r + 1);
+}
+draw_cube(edge);
+break;
+}
+}
+void main()
+{
+clrscr();
+int gdriver = DETECT, gmode, errorcode;
+initgraph(&gdriver, &gmode, "C:\\TURBOC3\\BGI");
+int n;
+double
+edge[20][3] = {100, 0, 0, 100, 100, 0, 0, 100, 0, 0, 100, 100, 0,
+0, 100, 0, 0, 0, 100,
+0, 0,
+100, 0, 100, 100, 75, 100, 75, 100, 100, 100, 100,
+75, 100, 100, 0, 100, 100, 75,
+100, 75, 100, 75, 100, 100, 0, 100, 100, 0, 100, 0,
+0, 0, 0, 0, 0, 100, 100, 0, 100};
+cout << " 1.Draw Cube \n 2.Rotation \n 3.Reflection \n";
+cout << " 4.Translation \n 5.Perspective Projection \n";
+cout << " Enter Your Choice : ";
+cin >> n;
+switch (n)
+{
+case 1:
+draw_cube(edge);
+break;
+case 2:
+rotate(edge);
+break;
+case 3:
+reflect(edge);
+break;
+case 4:
+translate(edge);
+break;
+case 5:
+perspect(edge);
+break;
+default:
+cout << " Invalid Choice\n ";
+}
+getch();
 }
